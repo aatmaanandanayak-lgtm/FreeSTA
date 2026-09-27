@@ -1,0 +1,14 @@
+# Describe the NEW particle I want a plan for.
+target:
+  name: my_complex_dimer
+  mass_kda: 500
+  diameter_A: 260
+  symmetry: C2
+  n_subunits: 2
+  oligomer: 2
+  flexibility: 0.4
+  pixel_size_A: 5.4          # pixel size of the subtomos I will start with
+  box_px: 96                 # null -> recommended from source box/diameter ratio
+  n_particles_start: 30000
+  extra_heterogeneity: 1     # extra classes to add (e.g. partially occupied extra subunit)
+source_project: 0            # index into 'projects' of the config to transfer from

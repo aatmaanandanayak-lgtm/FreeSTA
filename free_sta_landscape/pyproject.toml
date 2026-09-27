@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sta_landscape"
+version = "0.1.0"
+description = "Learn the free-energy landscape of RELION subtomogram-averaging classification/refinement and plan job sequences"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["numpy", "pandas", "scipy", "scikit-learn>=1.0", "matplotlib", "pyyaml"]
+keywords = ["cryo-ET", "subtomogram averaging", "RELION", "Bayesian optimisation", "Gaussian process"]
+
+[project.optional-dependencies]
+maps = ["mrcfile"]
+dev = ["pytest"]
+
+[project.scripts]
+sta-landscape = "sta_landscape.__main__:main"
+
+[tool.setuptools]
+packages = ["sta_landscape"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

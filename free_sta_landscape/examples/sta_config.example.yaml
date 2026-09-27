@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------------------
+# sta_landscape configuration
+# ---------------------------------------------------------------------------
+# One or more RELION projects in which I explored the landscape.  Adding
+# projects for *different* particles lets the model learn how particle
+# descriptors (mass, size, symmetry...) shift the optimum; with a single
+# project, transfer relies on dimensionless parameters + physical scaling rules.
+projects:
+  - dir: /path/to/my/RELION/project
+    particle:
+      name: my_complex
+      mass_kda: 250          # total mass of what I am averaging
+      diameter_A: 180        # longest dimension
+      symmetry: C1
+      n_subunits: 1
+      oligomer: 1
+      flexibility: 0.3       # 0 = rigid, 1 = very flexible (my judgement)
+      n_particles_start: null  # null -> largest particle set seen in the project
+    exclude_jobs: []         # e.g. [Class3D/job031] (tests, mistakes)
+    annotations: null        # optional CSV: job,noise_score(1-5),exclude,override_res,override_n,note
+
+output_dir: sta_landscape_out
+
+free_energy:
+  weights: {resolution: 1.0, particles: 0.3, noise: 0.5, compute: 0.0}
+  particles_preference: more    # more | fewer | target | none
+  particles_target: null        # used when preference = target
+  resolution_reference_A: null  # null -> 2 x smallest pixel size (Nyquist) in the project
+  temperature: 0.1              # how sharply the model imitates my most successful moves
+
+noise:
+  # Noise index = weighted mean of whichever components are available for a job (each in [0,1])
+  components: {spectral: 1.0, pmax: 0.5, angular_accuracy: 0.0, halfmap: 1.0, solvent: 0.5, mask_artefact: 0.5, user: 1.0}
+  spectral_band: [0.2, 0.8]     # SSNR noise fraction averaged over this band (fraction of Nyquist)
+  angular_accuracy_scale_deg: 10.0
+  use_maps: true                # half-map / solvent statistics (needs `pip install mrcfile`)
+
+model:
+  kappa: 1.0            # >0 explores (optimism under uncertainty) when searching for deeper minima
+  beam_width: 6
+  horizon: 3            # max number of Class3D/Refine3D steps in a proposed plan
+  n_candidates: 250
+  improvement_margin: 0.02
+  bandwidth: 1.0
+  seed: 0
+  bo_replays: 20
+  extrapolation: 0.25   # predictions may exceed my observed range by at most this fraction
+
+physics:
+  default_bfactor_A2: 400.0
+  mass_exponent: 1.0

@@ -1,0 +1,4 @@
+job,noise_score,exclude,override_res,override_n,note
+Refine3D/job035,2,,,,clean density; secondary structure visible
+Class3D/job031,,true,,,test run with wrong mask
+Select/job044,4,,,,kept class looks streaky

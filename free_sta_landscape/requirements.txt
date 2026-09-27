@@ -1,0 +1,7 @@
+numpy
+pandas
+scipy
+scikit-learn>=1.0
+matplotlib
+pyyaml
+mrcfile  # optional: half-map / solvent noise metrics
