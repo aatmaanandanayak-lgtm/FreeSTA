@@ -8,7 +8,6 @@ import numpy as np
 
 from .relion_project import NON_SCIENTIFIC_FLAGS, Job
 
-# Friendly GUI names for the report
 GUI_NAMES = {
     "tau2_fudge": "Regularisation parameter T", "K": "Number of classes", "iter": "Number of iterations",
     "particle_diameter": "Mask diameter (A)", "ini_high": "Initial low-pass filter (A)",
@@ -37,7 +36,7 @@ DERIVED = {
     "log_tau2_fudge": "tau2_fudge",
 }
 
-# Default values used when a flag is absent from a command line (relion_refine defaults)
+# Default values 
 FLAG_DEFAULTS = {
     "tau2_fudge": 1.0, "K": 1.0, "iter": 50.0, "healpix_order": 2.0, "offset_range": 6.0,
     "offset_step": 2.0, "oversampling": 1.0, "pad": 2.0, "ini_high": -1.0, "maxsig": -1.0,
