@@ -1,10 +1,3 @@
-"""Minimal, dependency-light STAR file reader for RELION 3.1 / 4 / 5 files.
-
-It is written to be tolerant rather than complete: it understands data_ blocks,
-key/value pairs and loop_ tables, quoted strings and comments.  For very large
-particle files I can ask for a row count only, or for a subset of columns,
-so a 500k-particle run_data.star does not have to be fully materialised.
-"""
 from __future__ import annotations
 
 import os
@@ -42,7 +35,6 @@ def read_star(path: str,
     """Read a STAR file.
 
     Parameters
-    ----------
     blocks      : only return these data blocks (names without 'data_'); None = all.
     columns     : {block: [labels]} restrict loop columns (labels without leading '_').
     count_only  : block names for which only the number of rows is returned
