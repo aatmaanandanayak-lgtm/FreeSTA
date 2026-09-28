@@ -1,4 +1,3 @@
-"""Builds a synthetic RELION project with a known landscape and runs the full pipeline."""
 import json
 
 from sta_landscape.config import load_config
@@ -27,3 +26,4 @@ def test_full_pipeline(tmp_path):
     assert len(s["path"]) >= 2
     assert res["transfer"]["steps"][-1]["kind"] == "refine"
     assert "--sym C2" in (out / "transfer_commands.txt").read_text()
+    "should build a synthetic pipeline"
