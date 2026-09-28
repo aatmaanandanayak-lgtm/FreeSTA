@@ -1,11 +1,3 @@
-"""Landscape analyses:
-
-  sensitivity + interactions   which parameters move F, alone and in concert
-  plan_beam                    model-based search for job sequences (beam search over actions)
-  efficiency                   (Q1) how fast I reached my minimum, what could be skipped,
-                               and how a Bayesian-optimisation ordering of the same jobs would have done
-  deeper_minimum               (Q2) is there likely a deeper minimum, where, and how to get there
-"""
 from __future__ import annotations
 
 import math
@@ -21,7 +13,7 @@ from sklearn.gaussian_process.kernels import ConstantKernel, Matern, WhiteKernel
 from .models import STATE_COLS, DynamicsModel
 
 
-# ----------------------------------------------------------------------------- sensitivity
+# sensitivity
 def importance(dm: DynamicsModel, n_repeats=10, seed=0) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     X = dm.X
@@ -103,7 +95,7 @@ def local_slices(dm: DynamicsModel, row_idx: dict, features: List[str], n=25):
     return out
 
 
-# ----------------------------------------------------------------------------- candidates
+# candidates
 def _state_vector(dm, state: Dict[str, float]):
     return np.array([state.get(c, dm.fs.fill.get(c, 0.0)) for c in STATE_COLS], float)
 
@@ -225,7 +217,7 @@ def evaluate(dm: DynamicsModel, cands: pd.DataFrame, F_best: float, margin: floa
     return res
 
 
-# ----------------------------------------------------------------------------- planning
+# planning
 def state_from_transition_post(dm: DynamicsModel, row: pd.Series) -> Dict[str, float]:
     """State *after* an observed transition, in the coordinates of the next transition."""
     s = {"pre.E_res": float(row["post.E_res"]), "pre.lnfrac": float(row["post.lnfrac"]),
@@ -298,7 +290,7 @@ def plan_beam(dm: DynamicsModel, start: Dict[str, float], mode="explore", horizo
     return finished[:beam]
 
 
-# ----------------------------------------------------------------------------- paths
+# paths
 def critical_path(tr: pd.DataFrame, outcome: str) -> List[str]:
     idx = tr.set_index("outcome")
     path, cur, seen = [], outcome, set()
@@ -312,7 +304,7 @@ def critical_path(tr: pd.DataFrame, outcome: str) -> List[str]:
     return path[::-1]
 
 
-# ----------------------------------------------------------------------------- Q1: efficiency
+# Q1: efficiency
 def _replay(dm, policy, avail_pre, outcomes, y, hours, rng=None, order_user=None, n_init=3):
     """Replay the *jobs I actually ran* in the order a policy would have chosen them, respecting that
     a job only becomes available once its input state exists.  Returns (best-so-far per step, hours per step).
@@ -441,7 +433,7 @@ def efficiency(out: pd.DataFrame, tr: pd.DataFrame, jobs: dict, dm: DynamicsMode
     )
 
 
-# ----------------------------------------------------------------------------- Q2: deeper minimum
+# Q2: deeper minimum
 def rosenthal_henderson(out: pd.DataFrame, sym_order=1):
     r = out[(out["kind"] == "refine") & (out["gold"] == 1)].dropna(subset=["res_A", "n"])
     if len(r) < 3 or r["n"].max() / max(r["n"].min(), 1) < 1.5:
