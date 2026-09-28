@@ -1,4 +1,3 @@
-"""Configuration handling (YAML) with sensible defaults."""
 from __future__ import annotations
 
 import copy
@@ -44,13 +43,8 @@ DEFAULTS = {
     },
 }
 
-TEMPLATE = """# ---------------------------------------------------------------------------
+TEMPLATE = """
 # sta_landscape configuration
-# ---------------------------------------------------------------------------
-# One or more RELION projects in which I explored the landscape.  Adding
-# projects for *different* particles lets the model learn how particle
-# descriptors (mass, size, symmetry...) shift the optimum; with a single
-# project, transfer relies on dimensionless parameters + physical scaling rules.
 projects:
   - dir: /path/to/my/RELION/project
     particle:
