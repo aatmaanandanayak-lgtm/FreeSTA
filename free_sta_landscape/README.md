@@ -41,7 +41,7 @@ F = w_res · ln(d / d_Nyquist)  +  w_particles · E_particles  +  w_noise · noi
   - half-map difference variance;
   - solvent/protein std ratio;
   - mask-induced correlation from the phase-randomised FSC;
-  - my own 1–5 score (optional, from `annotations.csv`).
+  - personal 1–5 score (optional, from `annotations.csv`).
 
 All weights are set in the config. See [docs/methods.md](docs/methods.md) for details.
 
