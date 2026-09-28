@@ -4,13 +4,13 @@
 
 **Treat iterative RELION subtomogram averaging as descent on a learned free-energy landscape.**
 
-When I work on a small, hard-to-resolve target, I branch through many Class3D → Select → Refine3D jobs, tuning regularisation, E-step limits, sampling, masks, class selection and more. `sta_landscape` reads that whole branching history from my RELION project and does four things:
+When working on a small, hard-to-resolve target, I have to branch through many Class3D → Select → Refine3D jobs iteratively, tuning regularisation, E-step limits, sampling, masks, class selection and more. `sta_landscape` reads that whole branching history from my RELION project and does four things:
 
 - It scores every state with a user-defined **free energy** that combines resolution, particle count and noise.
 - It learns how each job type and parameter moves me across that landscape, with uncertainty, and which parameters act alone or together.
 - It **plans job sequences and parameters for a modified particle** (extra subunit, dimer, larger box, different pixel size).
 - It answers two questions about my own exploration:
-  - **Rate:** how efficiently I reached my minimum, and what could have been skipped.
+  - **Rate:** how quickly (i.e., the number of steps) the minimum was reached - redundant steps will become visible.
   - **Depth:** whether a deeper minimum is likely, and which jobs would reach it.
 
 It only reads files RELION already writes (`note.txt`, `*_model.star`, `*_data.star`, `postprocess.star`, …), so my workflow doesn't change.
@@ -90,19 +90,19 @@ sta-landscape transfer -c my_analysis/sta_config.yaml -t my_analysis/target.yaml
    - E-step limit relative to Nyquist;
    - offsets in Å.
 2. **Learn.** A Gaussian-process and extra-trees ensemble predicts how each job changes resolution, particle fraction, noise and compute time. The uncertainty is propagated by Monte Carlo into F.
-3. **Imitate and plan.** Candidate moves are drawn from my own past moves, weighted by a Boltzmann factor on how much each one lowered F. A beam search then finds job sequences that end in a Refine3D.
-4. **Rate.** It replays my real jobs in the order I ran them, the order Bayesian optimisation would have chosen, and a random order, respecting job dependencies. It also finds skippable steps and flat parameter scans.
-5. **Depth.** It reports expected improvement, P(deeper minimum), multi-step plans from every fork on my path, the directions I never varied, a Nyquist check and a Rosenthal–Henderson fit.
-6. **Transfer.** It re-derives my recipe for the new particle, predicts each step, and adds a physics estimate: 1/d_t² = 1/d_s² + (2/B)·ln(N_eff,t/N_eff,s), with N_eff = particles × symmetry × mass ratio.
+3. **Imitate and plan.** Candidate moves are drawn from past moves, weighted by a Boltzmann factor on how much each one lowered F. A beam search then finds job sequences that end in a Refine3D.
+4. **Rate.** It replays jobs in the order I ran them, the order Bayesian optimisation would have chosen, and a random order, respecting job dependencies. It also finds skippable steps and flat parameter scans.
+5. **Depth.** It reports expected improvement, P(deeper minimum), multi-step plans from every fork on my path, the directions that were never varied, a Nyquist check and a Rosenthal–Henderson fit.
+6. **Transfer.** It re-derives recipe for the new particle, predicts each step, and adds a physics estimate: 1/d_t² = 1/d_s² + (2/B)·ln(N_eff,t/N_eff,s), with N_eff = particles × symmetry × mass ratio.
 
 Full description: [docs/methods.md](docs/methods.md).
 
 ## Caveats
 
-- The model summarises *my* exploration; it is not an oracle. Check `model_skill.csv`, and treat any proposal with novelty > 2 as an experiment.
-- Class3D resolutions are not gold-standard. They are modelled as their own kind of state.
-- Transfer from a single source particle relies on the dimensionless coordinates and the physics estimate. Adding projects for other particles lets the model learn how the optimum shifts with mass, size and symmetry.
-- Formats from RELION 3.1 to 5.0 are handled, but it has been tested on synthetic projects only. Run `scan` and inspect `jobs.csv` on my own project first.
+- As may have been inferred, this might ending up just providing a summary instead of a prediction. Check `model_skill.csv`, and treat any proposal with novelty > 2 as an experiment.
+- Class3D resolutions are not gold-standard. 
+- Transfer from a single source particle relies on the dimensionless coordinates and the physics estimate and so adding projects for other particles lets the model learn how the optimum shifts with mass, size and symmetry.
+- Formats from RELION 3.1 to 5.0 are handled, but the initial test runs were on synthetic projects only. Run `scan` and inspect `jobs.csv` on real projects first.
 
 ## Repository layout
 
