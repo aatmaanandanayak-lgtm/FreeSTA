@@ -15,7 +15,7 @@ from .starfile_io import read_star, particle_count, optimisation_set_particles
 
 JOB_RE = re.compile(r"([A-Za-z0-9_]+/job\d{3,})")
 
-# Flags that never change the result (compute / IO / bookkeeping) -> not landscape coordinates
+# flags that never change the result (compute / IO / bookkeeping) -> not landscape coordinates
 NON_SCIENTIFIC_FLAGS = {
     "o", "i", "ios", "ref", "solvent_mask", "solvent_mask2", "j", "pool", "gpu", "cpu",
     "dont_combine_weights_via_disc", "pipeline_control", "scratch_dir", "preread_images",
