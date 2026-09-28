@@ -2,22 +2,22 @@
 
 Detailed description of how `sta_landscape` reads a RELION project, defines the free energy, learns the landscape and answers the three questions. See the [README](../README.md) for installation and usage.
 
-## 1. How my RELION project is read
+## 1. How the RELION project is read
 
 | Source | What is extracted |
 |---|---|
 | `default_pipeline.star` | aliases, status, input edges (fallback) |
-| `*/jobNNN/note.txt` | the **exact command line**, including "additional arguments". Every `relion_refine` flag becomes a landscape coordinate automatically. |
+| `*/jobNNN/note.txt` | **exact command line**, including "additional arguments"; every `relion_refine` flag becomes a landscape coordinate automatically after that. |
 | `job.star` | GUI options (kept for reference) |
 | `Class3D`: `run_itNNN_model.star`, `run_itNNN_data.star` | per-class resolution, class distribution, per-class SSNR, pmax, angular accuracy, particles per class |
-| `Select`: `particles.star`, `backup_selection.star` | which classes I kept and how many particles. If the selection file is missing, the kept classes are inferred from the particle counts. |
+| `Select`: `particles.star`, `backup_selection.star` | which classes to keep and how many particles. If the selection file is missing, the kept classes are inferred from the particle counts. |
 | `Refine3D`: `run_model.star`, `run_data.star`, half maps | gold-standard resolution, SSNR, FSC, pmax, particle count |
 | `PostProcess`: `postprocess.star` | final masked resolution, B-factor, phase-randomised FSC |
-| `MaskCreate` | lowpass, threshold, extension and soft edge of the mask each job used. These become coordinates too. |
+| `MaskCreate` | lowpass, threshold, extension and soft edge of the mask each job used, which become coordinates too. |
 | anything in between (CtfRefineTomo, FrameAlignTomo, re-extraction…) | recorded as "run before this step" modifiers |
 | file times, `RELION_JOB_EXIT_*` | wall-clock hours per job and failed/aborted jobs |
 
-**States and moves.** A *state* is something I can measure. It is either a Class3D together with the Select job that chose classes from it (one state per selection, so re-selecting the same classification is a different move), or a Refine3D together with its best PostProcess. A *transition* is state → [job type + all parameters + class selection + intermediate jobs] → state.
+**States and moves.** A *state* is just a job (or subset of jobs): for e.g., a Class3D together with the Select job that chose classes from it (one state per selection, so re-selecting the same classification is a different move), or a Refine3D together with its best PostProcess. A *transition* is state → [job type + all parameters + class selection + intermediate jobs] → state.
 
 **Excluding jobs.** Use `exclude_jobs` in the config or `exclude=true` in `annotations.csv`.
 
@@ -25,7 +25,7 @@ Detailed description of how `sta_landscape` reads a RELION project, defines the 
 
 ## 2. The free energy
 
-Lower is better:
+Aim is to minimise:
 
 ```
 F = w_res · E_res  +  w_particles · E_particles  +  w_noise · E_noise  (+ w_compute · E_compute)
@@ -39,13 +39,13 @@ E_noise     ∈ [0, 1]  (below)
 E_compute   = ln(1 + cumulative hours along the lineage)   (off by default)
 ```
 
-The log scales make the terms dimensionless and comparable across particles and pixel sizes. A 10 % gain in resolution is worth the same everywhere. The trade-off between resolution and particle count is set explicitly by the weights. Because of Rosenthal–Henderson (ln N ∝ B/2 · 1/d²), E_res and E_particles are physically linked, which the report also uses.
+The log scales make the terms dimensionless and comparable across particles and pixel sizes, so that an n% gain in resolution is the same everywhere. The trade-off between resolution and particle count is set explicitly by the weights. Because of Rosenthal–Henderson (ln N ∝ B/2 · 1/d²), E_res and E_particles are physically linked.
 
-**Which particle preference to choose.** "more" rewards keeping particles, for example when I want the fullest possible dataset. "fewer" rewards purity, for example when I want the most homogeneous sub-state. "target" is for when I know roughly how many particles belong to the state I am after.
+**Which particle preference to choose.** "more" for keeping particles; for e.g., when I want to include as many as I can for increased SNR. "fewer" for cleanup; for e.g., when I just want either a specific sub-state or to remove noise. "target" for when I already roughly know how many particles belong to my desired state.
 
 ### Quantifying "noise"
 
-No single number captures noise, so the noise index is a weighted mean of whichever of these components exist for a job. Each component is scaled to 0 (clean) … 1 (pure noise):
+Since no parameter quantifies quantifies noise on its own, the noise index is a weighted mean of whichever of these components exist for a job. Each component is scaled to 0 (clean) … 1 (pure noise):
 
 | component | definition | available for |
 |---|---|---|
@@ -57,7 +57,7 @@ No single number captures noise, so the noise index is a weighted mean of whiche
 | `mask_artefact` | mean \|phase-randomised masked FSC\| beyond the resolution: how much correlation the mask is creating | PostProcess |
 | `user` | my own 1–5 score from `annotations.csv` (column `noise_score`) | anything I annotate |
 
-Weights are in `noise.components`. If a map "looks noisy" to me in a way these numbers miss, add a `noise_score` for it. My judgement then becomes part of F and the model learns from it.
+Weights are in `noise.components`. If a map "looks noisy" in a way these numbers miss, add a `noise_score` for it. This allows user judgement to become a part of F and the model can learn from it.
 
 ---
 
@@ -154,9 +154,8 @@ It also gives model-optimised alternative sequences, planned from the target's s
 
 ## 5. Getting the most out of it (and caveats)
 
-- **The model is only as good as my exploration.** With a few dozen jobs it is a structured summary of my landscape, not an oracle. Check `model_skill.csv`, the novelty scores, and the unexplored-directions list. Validate every proposal with a real job, then re-run `analyse`: the loop is the point.
+- **The model is only as good as the exploration.** Depending on the number of jobs and runs it can become more of a summary instead of a predictor. The `model_skill.csv`, the novelty scores, and the unexplored-directions list should provide useful insight. Every proposed sequence can/should be validated with a real job followed by then re-running `analyse`.
 - One-factor-at-a-time scans are easy to interpret by eye but poor for learning interactions. Occasionally vary two or three parameters at once, for example with the planner's batch proposals. The H² estimates will improve quickly.
 - **Class3D resolutions are not gold-standard.** They are treated as a separate kind of state, and the model learns how they translate into Refine3D results.
-- **Transfer from one particle** relies on the dimensionless coordinates and the physics prior. The more particles (projects) I add, the more the model learns how the optimum *shifts* with mass, size, symmetry and flexibility.
-- Use `annotations.csv` for things RELION can't see: a class that is "junk but high resolution", a map with streaks, a job run with a mistake (`exclude=true`), or a manual resolution override.
-- Tested against synthetic RELION-5-style projects (the `demo` command). Formats from RELION 3.1 to 5.0 are handled, but check `python -m sta_landscape scan` on my project first, and look at `jobs.csv` to confirm every job's parent and flags were read as I expect.
+- **Transfer from one particle** relies on the dimensionless coordinates and the physics prior. The more particles (projects) added, the more the model learns how the optimum *shifts* with mass, size, symmetry and flexibility.
+- Use `annotations.csv` for things RELION can't see, like a class that is "junk but high resolution", a map with streaks, a job run with a mistake (`exclude=true`), or a manual resolution override.
