@@ -1,4 +1,3 @@
-"""End-to-end pipeline used by the command line."""
 from __future__ import annotations
 
 import json
@@ -130,7 +129,7 @@ def run(cfg, target=None, source_index=0, do_report=True):
                     fh.write(s["command"] + "\n")
                 fh.write("\n")
 
-    # --------------------------------------------------------------- write outputs
+    # write outputs
     cv.to_csv(os.path.join(od, "model_skill.csv"), index=False)
     imp.to_csv(os.path.join(od, "sensitivity.csv"), index=False)
     inter.to_csv(os.path.join(od, "interactions.csv"), index=False)
