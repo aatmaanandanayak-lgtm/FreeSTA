@@ -1,4 +1,3 @@
-"""Figures + a self-contained HTML report."""
 from __future__ import annotations
 
 import base64
@@ -45,7 +44,7 @@ def _tbl(df, n=None, floatfmt="{:.3g}"):
     return d.to_html(index=False, escape=True, float_format=lambda x: floatfmt.format(x), border=0, classes="t")
 
 
-# ----------------------------------------------------------------------------- flag descriptions
+# flag descriptions
 def action_to_flags(action: dict, dm, apix, diam):
     feat = {c[2:] if c.startswith("a.") else c: v for c, v in action.items()}
     return decode_features(feat, apix, diam, bool_cols={c[2:] for c in dm.fs.bool_cols},
@@ -80,7 +79,7 @@ def describe_vs_nearest(action: dict, kind: str, dm, apix, diam, jobs):
     return row["job"], "; ".join(diffs) if diffs else "(same parameters)"
 
 
-# ----------------------------------------------------------------------------- figures
+# figures
 def fig_tree(out, tr, path):
     fig, ax = plt.subplots(figsize=(8.5, 4.2))
     o = out.dropna(subset=["F"]).set_index("outcome")
@@ -219,7 +218,7 @@ def fig_rh(rh):
     return _png(fig, "07_rosenthal_henderson")
 
 
-# ----------------------------------------------------------------------------- HTML
+# HTML
 CSS = """
 :root{--bg:#fff;--fg:#1d1d1f;--muted:#666;--line:#e3e3e3;--acc:#2a78c7;--card:#f7f7f8}
 @media (prefers-color-scheme: dark){:root{--bg:#161618;--fg:#e8e8ea;--muted:#9a9aa0;--line:#333;--card:#1f1f22}
