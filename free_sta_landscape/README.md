@@ -82,7 +82,7 @@ sta-landscape transfer -c my_analysis/sta_config.yaml -t my_analysis/target.yaml
 | `recipe.csv` | path to the minimum in RELION terms |
 | `transfer_plan.json`, `transfer_commands.txt` | plan for the modified particle, with `relion_refine` commands built from personal project |
 
-## How it works (short version)
+## Brief Functionality
 
 1. **Parse.** Every scientific `relion_refine` flag, mask parameter, class selection and intermediate job (CtfRefine, re-extraction…) becomes a coordinate. Particle-dependent flags are made dimensionless so they transfer between particles:
    - mask diameter relative to particle diameter;
