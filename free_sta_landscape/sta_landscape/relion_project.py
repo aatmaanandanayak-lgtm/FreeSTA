@@ -1,16 +1,3 @@
-"""Scan a RELION (4.x / 5.x, also 3.1) project directory and turn it into a job graph
-with per-job parameters and measured outcomes.
-
-Everything is read from files RELION already writes:
-  default_pipeline.star        -> job list, aliases, status, input edges
-  <Type>/jobNNN/note.txt       -> the exact command line(s) that were run  (canonical parameters)
-  <Type>/jobNNN/job.star       -> GUI job options (kept for reference)
-  Class3D  : run_itNNN_model.star / run_itNNN_data.star
-  Refine3D : run_model.star (or last run_itNNN_half1_model.star) / run_data.star
-  PostProcess : postprocess.star
-  Select   : particles.star (+ backup_selection.star)
-  MaskCreate: note.txt (mask parameters become features of jobs that use the mask)
-"""
 from __future__ import annotations
 
 import datetime as _dt
@@ -66,7 +53,7 @@ class Job:
         return np.nan
 
 
-# ----------------------------------------------------------------------------- command lines
+# command lines
 def _clean_tokens(line: str) -> List[str]:
     line = line.replace("`which ", "").replace("`", " ")
     try:
@@ -160,7 +147,7 @@ def read_joboptions(path: str) -> Dict[str, object]:
     return out
 
 
-# ----------------------------------------------------------------------------- scanning
+# scanning
 def _status(jobdir: str) -> str:
     if os.path.exists(os.path.join(jobdir, "RELION_JOB_EXIT_SUCCESS")):
         return "succeeded"
@@ -276,7 +263,7 @@ def scan_project(project: str) -> Dict[str, Job]:
     return jobs
 
 
-# ----------------------------------------------------------------------------- metrics
+# metrics
 def job_kind(job: Job) -> str:
     """classify | refine | postprocess | select | mask | other"""
     t = job.jtype.lower()
