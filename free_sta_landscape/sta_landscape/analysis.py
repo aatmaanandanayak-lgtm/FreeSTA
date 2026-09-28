@@ -39,7 +39,7 @@ def importance(dm: DynamicsModel, n_repeats=10, seed=0) -> pd.DataFrame:
 
 
 def interactions(dm: DynamicsModel, features: List[str], max_points=50, seed=0) -> pd.DataFrame:
-    """Friedman's H^2 statistic for pairs (0 = additive, 1 = effect is pure interaction)."""
+    """Friedman's H^2 statistic for pairs (0 = additive, 1 = multiplicative interaction)."""
     rng = np.random.default_rng(seed)
     X = dm.X
     if len(X) > max_points:
