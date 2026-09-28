@@ -17,7 +17,7 @@ It only reads files RELION already writes (`note.txt`, `*_model.star`, `*_data.s
 
 > Figures below come from the built-in **synthetic** demo project, not from real data. See [`docs/example_report.html`](docs/example_report.html) for a full example report.
 
-| My exploration of the landscape | The landscape on its two main axes |
+| Exploration of the landscape | The landscape on its two main axes |
 |---|---|
 | ![tree](docs/images/01_exploration_tree.png) | ![pca](docs/images/02_landscape_pca.png) |
 | **Which parameters matter** | **Which act in concert** |
