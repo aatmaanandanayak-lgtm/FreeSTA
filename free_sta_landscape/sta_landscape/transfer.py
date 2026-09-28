@@ -1,17 +1,3 @@
-"""Transfer a learned recipe to a modified particle (extra subunit, dimer, bigger box, ...).
-
-Three layers, from most to least conservative:
-  1. Recipe transfer: replay the job sequence on my critical path, with every parameter
-     re-expressed for the new particle through its dimensionless coordinate
-     (mask diameter/particle diameter, angular step as arc length at the particle edge,
-     E-step limit relative to Nyquist, offsets in A, mask extension in A) plus explicit rules
-     for symmetry, number of classes and box size.
-  2. Model prediction: the dynamics model walks the new particle through that recipe
-     (if I trained on several particles, particle descriptors are model inputs).
-  3. Physics prior: Rosenthal-Henderson scaling of the attainable resolution with the effective
-     number of asymmetric units (particles x symmetry x mass ratio).
-The model-optimised alternative (beam search from the new particle's starting state) is given too.
-"""
 from __future__ import annotations
 
 import math
@@ -48,8 +34,8 @@ def _num(v):
 
 
 def substitute_command(cmd: str, new_flags: Dict[str, object], removed=(), kind="refine"):
-    """Rewrite one of my real command lines with new parameter values, keeping everything else
-    verbatim and replacing project-specific paths by placeholders."""
+    """Rewrite one of these real command lines with new parameter values, keeping everything else
+    the same and replacing project-specific paths by placeholders."""
     toks = _clean_tokens(cmd)
     prog_i = next((i for i, t in enumerate(toks) if re.match(r"^relion_\w+", t.split("/")[-1])), 0)
     prog = toks[prog_i]
@@ -222,7 +208,7 @@ def transfer(dm, out: pd.DataFrame, tr: pd.DataFrame, jobs: dict, meta: dict, ta
                       "pre.n_class_rounds": state["pre.n_class_rounds"] + (row["kind"] == "classify"),
                       "pre.n_refine_rounds": state["pre.n_refine_rounds"] + (row["kind"] == "refine")})
 
-    # --- physics prior (Rosenthal-Henderson) on the final resolution
+    # physics prior (Rosenthal-Henderson) on the final resolution
     B = eff.get("rh_B") or cfg["physics"]["default_bfactor_A2"]
     alpha = cfg["physics"].get("mass_exponent", 1.0)
     d_s = float(best["res_A"])
@@ -237,7 +223,7 @@ def transfer(dm, out: pd.DataFrame, tr: pd.DataFrame, jobs: dict, meta: dict, ta
                 note=("Effective asymmetric units = particles kept x symmetry order x (mass ratio)^%.1f; "
                       "1/d_t^2 = 1/d_s^2 + (2/B) ln(Neff_t/Neff_s)." % alpha))
 
-    # --- model-optimised alternative from the target's starting state
+    # model-optimised alternative from the target's starting state
     alt = plan_beam(dm, start_state, mode="expected")
     alt_out = []
     for p in alt[:3]:
