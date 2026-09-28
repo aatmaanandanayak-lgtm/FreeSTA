@@ -77,10 +77,10 @@ sta-landscape transfer -c my_analysis/sta_config.yaml -t my_analysis/target.yaml
 | `states.csv`, `transitions.csv`, `jobs.csv` | parsed project: every measured state with F terms and noise components |
 | `model_skill.csv` | cross-validated accuracy of the learned model (read this first) |
 | `sensitivity.csv`, `interactions.csv` | parameter importance and pairwise interaction strength (Friedman H²) |
-| `timeline.csv`, `skippable_steps.csv`, `parameter_scans.csv` | rate: how efficiently I reached the minimum |
+| `timeline.csv`, `skippable_steps.csv`, `parameter_scans.csv` | rate: how efficiently  minimum was reached |
 | `next_job_candidates.csv`, `summary.json` | depth: next jobs and multi-step plans, with P(improvement) and novelty |
-| `recipe.csv` | my path to the minimum in RELION terms |
-| `transfer_plan.json`, `transfer_commands.txt` | plan for the modified particle, with `relion_refine` commands built from my own |
+| `recipe.csv` | path to the minimum in RELION terms |
+| `transfer_plan.json`, `transfer_commands.txt` | plan for the modified particle, with `relion_refine` commands built from personal project |
 
 ## How it works (short version)
 
