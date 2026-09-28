@@ -1,11 +1,3 @@
-"""Surrogate models of the landscape.
-
-DynamicsModel learns   state_after - state_before = g(state_before, job type, parameters, particle)
-for three state variables (E_res, ln particle fraction, noise) plus the compute cost (log hours).
-Each target uses an average of a Gaussian process (ARD Matern kernel: smooth, calibrated
-uncertainty, per-parameter length-scales) and an extremely-randomised tree ensemble (robust to
-discontinuities and interactions).  Uncertainty = mixture variance of the two.
-"""
 from __future__ import annotations
 
 import warnings
