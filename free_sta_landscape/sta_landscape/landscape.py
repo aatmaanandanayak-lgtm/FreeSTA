@@ -1,16 +1,3 @@
-"""Turn a scanned RELION job graph into a 'free-energy landscape':
-
-  outcome  = a measurable state (resolution, particle count, noise) produced by a
-             Class3D (+ the Select job that chose classes from it) or a Refine3D
-             (+ its PostProcess)
-  transition = (state before) --[job type + parameters]--> (state after)
-
-F = w_res*E_res + w_part*E_part + w_noise*E_noise + w_comp*E_comp          (lower = better)
-  E_res   = ln(d / d_ref)               d = resolution in A, d_ref = Nyquist of finest pixel size
-  E_part  = -ln(N/N0) | +ln(N/N0) | (ln N/N_target)^2 | 0     (more | fewer | target | none)
-  E_noise = weighted mean of available noise components, each in [0,1]
-  E_comp  = ln(1 + cumulative compute hours along the lineage)
-"""
 from __future__ import annotations
 
 import itertools
@@ -30,7 +17,7 @@ except ImportError:  # pragma: no cover
     mrcfile = None
 
 
-# ----------------------------------------------------------------------------- noise
+# noise
 def spectral_noise_fraction(res_inv_A, ssnr, apix, band) -> Optional[float]:
     """Mean of 1/(1+SSNR) over a frequency band (fractions of Nyquist). 0 = all signal, 1 = all noise."""
     if res_inv_A is None or apix is None:
@@ -102,7 +89,7 @@ def combine_noise(comps: Dict[str, float], weights: Dict[str, float]) -> float:
     return num / den if den > 0 else np.nan
 
 
-# ----------------------------------------------------------------------------- free energy
+# free energy
 def free_energy_terms(res_A, n, n0, noise, hours, cfg, d_ref):
     fe = cfg["free_energy"]
     e_res = math.log(res_A / d_ref) if (res_A and res_A > 0) else np.nan
@@ -148,7 +135,7 @@ def F_from_state(e_res, lnfrac, noise, cfg, e_comp=0.0):
             + w.get("noise", 0) * np.clip(noise, 0, 1) + w.get("compute", 0) * e_comp)
 
 
-# ----------------------------------------------------------------------------- outcomes
+# outcomes
 def _infer_selected(class_counts: Dict[int, int], n_sel: int) -> Optional[List[int]]:
     if not class_counts or not n_sel:
         return None
