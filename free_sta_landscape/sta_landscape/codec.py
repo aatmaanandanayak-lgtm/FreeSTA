@@ -1,19 +1,3 @@
-"""Translate RELION command-line parameters <-> landscape coordinates.
-
-Every relion_refine flag I ever used becomes a coordinate automatically (numeric flags
-as numbers, switches as 0/1).  A handful of flags whose meaning depends on the particle
-(size, pixel size, symmetry) are re-expressed in dimensionless / physical units so that
-what was learned on one particle transfers to another:
-
-  particle_diameter      -> particle_diameter_rel = mask diameter / particle diameter
-  offset_range/step (px) -> offset_range_A / offset_step_A (Angstrom)
-  strict_highres_exp (A) -> highres_limit_rel = f_limit / f_Nyquist  (no limit -> 1)
-  healpix_order          -> healpix_arc_A = angular step (rad) * particle radius (A)
-  auto_local_healpix_order -> auto_local_arc_A  (same idea)
-  tau2_fudge             -> log_tau2_fudge
-  sym / relax_sym        -> taken from the particle descriptor (context), not a coordinate
-  mask job (relion_mask_create) -> mask.lowpass_A, mask.ini_threshold, mask.extend_A, mask.soft_edge_A
-"""
 from __future__ import annotations
 
 import math
