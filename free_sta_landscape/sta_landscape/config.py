@@ -38,7 +38,7 @@ DEFAULTS = {
         "extrapolation": 0.25,    # predicted states may exceed the observed range by at most this fraction
     },
     "physics": {
-        "default_bfactor_A2": 400.0,   # used for Rosenthal-Henderson extrapolation if it cannot be fitted
+        "default_bfactor_A2": 400.0,   # used for Rosenthal-Henderson extrapolation if it can't be fitted
         "mass_exponent": 1.0,          # N_eff scales as (mass ratio)^exponent
     },
 }
