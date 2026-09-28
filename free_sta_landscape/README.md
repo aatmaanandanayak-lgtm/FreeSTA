@@ -91,7 +91,7 @@ sta-landscape transfer -c my_analysis/sta_config.yaml -t my_analysis/target.yaml
    - offsets in Å.
 2. **Learn.** A Gaussian-process and extra-trees ensemble predicts how each job changes resolution, particle fraction, noise and compute time. The uncertainty is propagated by Monte Carlo into F.
 3. **Imitate and plan.** Candidate moves are drawn from past moves, weighted by a Boltzmann factor on how much each one lowered F. A beam search then finds job sequences that end in a Refine3D.
-4. **Rate.** It replays jobs in the order I ran them, the order Bayesian optimisation would have chosen, and a random order, respecting job dependencies. It also finds skippable steps and flat parameter scans.
+4. **Rate.** It replays jobs in the order they were run, the order Bayesian optimisation would have chosen, and a random order, respecting job dependencies. It also finds skippable steps and flat parameter scans.
 5. **Depth.** It reports expected improvement, P(deeper minimum), multi-step plans from every fork on my path, the directions that were never varied, a Nyquist check and a Rosenthal–Henderson fit.
 6. **Transfer.** It re-derives recipe for the new particle, predicts each step, and adds a physics estimate: 1/d_t² = 1/d_s² + (2/B)·ln(N_eff,t/N_eff,s), with N_eff = particles × symmetry × mass ratio.
 
