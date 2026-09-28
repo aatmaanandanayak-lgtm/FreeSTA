@@ -1,6 +1,3 @@
-"""Generate a synthetic RELION-5-style subtomogram-averaging project with a hidden, known
-landscape, explored by a simulated user doing one-factor-at-a-time tuning.
-Used for testing and as a worked example.  No real data is involved."""
 from __future__ import annotations
 
 import datetime as dt
@@ -24,7 +21,7 @@ class Sim:
         self.t = dt.datetime(2026, 6, 1, 9, 0, 0).timestamp()
         os.makedirs(root, exist_ok=True)
 
-    # ------------------------------------------------------------------ helpers
+    # helpers
     def newjob(self, jtype, cmd, hours, status="succeeded"):
         self.num += 1
         name = f"{jtype}/job{self.num:03d}"
@@ -62,7 +59,7 @@ class Sim:
             t["rlnGoldStandardFsc"] = fsc
         return t
 
-    # ------------------------------------------------------------------ hidden physics
+    # hidden physics
     @staticmethod
     def class_quality(p):
         tau, hl, K, order = p["tau2_fudge"], p["hl"], p["K"], p["healpix_order"]
@@ -86,7 +83,7 @@ class Sim:
         B *= 0.85 if mods.get("ctf") else 1.0
         return B
 
-    # ------------------------------------------------------------------ job writers
+    # job writers
     def mask(self, ext_px, soft_px, lowpass=20):
         name, d = self.newjob("MaskCreate", f"`which relion_mask_create` --i Import/job001/ref.mrc --o JOB/mask.mrc "
                               f"--lowpass {lowpass} --ini_threshold 0.01 --extend_inimask {ext_px} --width_soft_edge {soft_px} "
@@ -253,7 +250,7 @@ def make_demo_project(root, seed=1):
                 best = bestr
         return best
 
-    # ---- round 1 classification: tau, then E-step limit, then K, then sampling, then mask
+    # round 1 classification: tau, then E-step limit, then K, then sampling, then mask
     base = dict(tau2_fudge=1, hl=1.0, K=4, healpix_order=2, zero_mask=1)
     b1 = run_class_sweep(inp0, pset0, base, [("tau2_fudge", [1, 2, 4, 8]), ("hl", [0.85, 0.6, 0.45]),
                                              ("K", [3, 6]), ("healpix_order", [1, 3])], maskA)
@@ -267,7 +264,7 @@ def make_demo_project(root, seed=1):
             mask_best = maskA
     else:
         mask_best = maskA
-    # ---- refinement sweep
+    # refinement sweep
     rbase = dict(tau2_fudge=1, auto_local_healpix_order=4, blush=0)
     r_results = []
     for key, vals in (("auto_local_healpix_order", [4, 5]), ("blush", [1]), ("tau2_fudge", [2])):
@@ -278,7 +275,7 @@ def make_demo_project(root, seed=1):
                 r_results.append((rr["res"], p, rname, rr, m))
         rbase = min(r_results, key=lambda r: r[0])[1]
     _, rp, r1, rr1, rmask = min(r_results, key=lambda r: r[0])
-    # ---- round 2: re-classify the refined particles (local), sweep tau and K
+    # round 2: re-classify the refined particles (local), sweep tau and K
     base2 = dict(p1)
     b2 = run_class_sweep(f"{r1}/run_optimisation_set.star", dict(N=rr1["N"], purity=rr1["purity"]), base2,
                          [("tau2_fudge", [2, 6]), ("K", [3, 5])], rmask)
