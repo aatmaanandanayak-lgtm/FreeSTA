@@ -68,7 +68,7 @@ sta-landscape transfer -c my_analysis/sta_config.yaml -t my_analysis/target.yaml
 
 `python -m sta_landscape …` works too, without installing. Example inputs are in [`examples/`](examples/).
 
-### What I get (`output_dir/`)
+### Output (`output_dir/`)
 
 | file | content |
 |---|---|
